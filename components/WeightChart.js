@@ -59,12 +59,15 @@ export default function WeightChart({ weightRecords }) {
   };
 
   // Calculate statistics
+  // Note: weightRecords should be sorted ASC (oldest first) for proper graph display
   const weights = weightRecords.map((r) => r.weight);
   const minWeight = Math.min(...weights);
   const maxWeight = Math.max(...weights);
   const avgWeight = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
-  const latestWeight = weights[weights.length - 1];
-  const firstWeight = weights[0];
+  
+  // With ASC sorting: first item is oldest, last item is newest
+  const firstWeight = weights[0]; // Oldest weight
+  const latestWeight = weights[weights.length - 1]; // Newest weight
   const difference = (latestWeight - firstWeight).toFixed(1);
 
   return (

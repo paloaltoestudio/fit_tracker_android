@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_BASE_URL = 'https://fit-tracker-api.onrender.com/api/v1';
+import { API_BASE_URL } from '../config/api';
 
 class ApiService {
   async request(endpoint, options = {}) {
@@ -26,22 +25,51 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
-      // Handle non-JSON responses
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        throw new Error(text || 'An error occurred');
-      }
 
       if (!response.ok) {
-        throw new Error(data.message || data.detail || `Error: ${response.status}`);
+        // Try to parse error response as JSON
+        let errorData;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            errorData = await response.json();
+          } catch (e) {
+            // If JSON parsing fails, get text
+            errorData = { message: await response.text() };
+          }
+        } else {
+          const text = await response.text();
+          errorData = { message: text || `Error: ${response.status}` };
+        }
+        throw new Error(errorData.message || errorData.detail || `Error: ${response.status}`);
       }
 
-      return data;
+      // Handle empty responses (like 204 No Content for DELETE)
+      const contentType = response.headers.get('content-type');
+      
+      // Check if response has no content (204) or empty body
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return null; // Return null for empty successful responses
+      }
+
+      // Handle JSON responses
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        // Check if response body is empty
+        if (!text || text.trim() === '') {
+          return null;
+        }
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          // If JSON parsing fails but we have text, return it as string
+          throw new Error(`Invalid JSON response: ${text}`);
+        }
+      }
+
+      // Handle non-JSON responses (return text)
+      const text = await response.text();
+      return text || null;
     } catch (error) {
       throw error;
     }
@@ -88,6 +116,49 @@ class ApiService {
 
   async logout() {
     await this.removeToken();
+  }
+
+  // Weight endpoints
+  async getWeights() {
+    return await this.request('/weights');
+  }
+
+  async createWeight(weight, date) {
+    // Format date as YYYY-MM-DD
+    const formattedDate = typeof date === 'string' 
+      ? date.split('T')[0] 
+      : new Date(date).toISOString().split('T')[0];
+    
+    return await this.request('/weights', {
+      method: 'POST',
+      body: JSON.stringify({
+        weight: parseFloat(weight),
+        date: formattedDate,
+      }),
+    });
+  }
+
+  async updateWeight(id, weight, date = null) {
+    const body = { weight: parseFloat(weight) };
+    
+    // Only include date if provided
+    if (date) {
+      const formattedDate = typeof date === 'string'
+        ? date.split('T')[0]
+        : new Date(date).toISOString().split('T')[0];
+      body.date = formattedDate;
+    }
+    
+    return await this.request(`/weights/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteWeight(id) {
+    return await this.request(`/weights/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

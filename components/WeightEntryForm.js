@@ -18,7 +18,7 @@ export default function WeightEntryForm({ onAdd }) {
   const [showModal, setShowModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const weightValue = parseFloat(weight);
     
     if (!weight || isNaN(weightValue) || weightValue <= 0) {
@@ -27,11 +27,14 @@ export default function WeightEntryForm({ onAdd }) {
     }
 
     const selectedDate = date || new Date();
-    onAdd(weightValue, selectedDate.toISOString());
-    setWeight('');
-    setDate(new Date());
-    setShowModal(false);
-    Alert.alert('Success', 'Weight record added successfully!');
+    try {
+      await onAdd(weightValue, selectedDate.toISOString());
+      setWeight('');
+      setDate(new Date());
+      setShowModal(false);
+    } catch (error) {
+      // Error is handled by parent component
+    }
   };
 
   return (

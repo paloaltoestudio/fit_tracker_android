@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,41 +7,98 @@ import {
   StatusBar,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import WeightEntryForm from '../components/WeightEntryForm';
 import WeightList from '../components/WeightList';
 import WeightChart from '../components/WeightChart';
+import api from '../services/api';
 
 export default function WeightJournalScreen({ onBack }) {
   const [weightRecords, setWeightRecords] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch weights from API when component mounts
+  useEffect(() => {
+    loadWeights();
+  }, []);
+
+  const loadWeights = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await api.getWeights();
+      
+      // API returns an array directly: [{id, user_id, weight, date, created_at}, ...]
+      const weights = Array.isArray(data) ? data : [];
+      
+      // Sort by date ASC (oldest first) for proper graph display (oldest on left, newest on right)
+      const sortedWeights = weights.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB; // Oldest first (ASC) - required for graph
+      });
+      
+      setWeightRecords(sortedWeights);
+    } catch (err) {
+      console.error('Error loading weights:', err);
+      setError(err.message || 'Failed to load weight records');
+      Alert.alert('Error', err.message || 'Failed to load weight records');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Add a new weight record
-  const addWeightRecord = (weight, date) => {
-    const newRecord = {
-      id: Date.now().toString(),
-      weight: parseFloat(weight),
-      date: date || new Date().toISOString(),
-    };
-    setWeightRecords(prev => [...prev, newRecord].sort((a, b) => 
-      new Date(a.date) - new Date(b.date)
-    ));
+  const addWeightRecord = async (weight, date) => {
+    try {
+      const newRecord = await api.createWeight(weight, date);
+      
+      // Reload weights to get the complete list with IDs from server
+      await loadWeights();
+      
+      Alert.alert('Success', 'Weight record added successfully!');
+    } catch (err) {
+      console.error('Error adding weight:', err);
+      Alert.alert('Error', err.message || 'Failed to add weight record');
+      throw err;
+    }
   };
 
   // Edit an existing weight record
-  const editWeightRecord = (id, weight, date) => {
-    setWeightRecords(prev =>
-      prev.map(record =>
-        record.id === id
-          ? { ...record, weight: parseFloat(weight), date }
-          : record
-      ).sort((a, b) => new Date(a.date) - new Date(b.date))
-    );
+  const editWeightRecord = async (id, weight, date) => {
+    try {
+      await api.updateWeight(id, weight, date);
+      
+      // Reload weights to get updated data
+      await loadWeights();
+      
+      Alert.alert('Success', 'Weight record updated successfully!');
+    } catch (err) {
+      console.error('Error updating weight:', err);
+      Alert.alert('Error', err.message || 'Failed to update weight record');
+      throw err;
+    }
   };
 
   // Delete a weight record
-  const deleteWeightRecord = (id) => {
-    setWeightRecords(prev => prev.filter(record => record.id !== id));
+  const deleteWeightRecord = async (id) => {
+    try {
+      await api.deleteWeight(id);
+      
+      // Remove from local state immediately for better UX
+      setWeightRecords(prev => prev.filter(record => record.id !== id));
+      
+      Alert.alert('Success', 'Weight record deleted successfully!');
+    } catch (err) {
+      console.error('Error deleting weight:', err);
+      Alert.alert('Error', err.message || 'Failed to delete weight record');
+      // Reload on error to sync with server
+      await loadWeights();
+    }
   };
 
   return (
@@ -60,13 +117,33 @@ export default function WeightJournalScreen({ onBack }) {
         <View style={styles.placeholder} />
       </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <WeightChart weightRecords={weightRecords} />
-        <WeightEntryForm onAdd={addWeightRecord} />
-        <WeightList
-          weightRecords={weightRecords}
-          onEdit={editWeightRecord}
-          onDelete={deleteWeightRecord}
-        />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4CAF50" />
+            <Text style={styles.loadingText}>Loading weight records...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle-outline" size={48} color="#f44336" />
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={loadWeights}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <WeightChart weightRecords={weightRecords} />
+            <WeightEntryForm onAdd={addWeightRecord} />
+            <WeightList
+              weightRecords={weightRecords}
+              onEdit={editWeightRecord}
+              onDelete={deleteWeightRecord}
+            />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -109,5 +186,40 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 64,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 64,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#f44336',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

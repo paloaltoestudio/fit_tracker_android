@@ -25,7 +25,7 @@ export default function WeightList({ weightRecords, onEdit, onDelete }) {
     setEditDate(new Date(record.date));
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     const weightValue = parseFloat(editWeight);
     
     if (!editWeight || isNaN(weightValue) || weightValue <= 0) {
@@ -33,12 +33,15 @@ export default function WeightList({ weightRecords, onEdit, onDelete }) {
       return;
     }
 
-    onEdit(editingRecord.id, weightValue, editDate.toISOString());
-    setEditingRecord(null);
-    setEditWeight('');
-    setEditDate(new Date());
-    setShowDatePicker(false);
-    Alert.alert('Success', 'Weight record updated successfully!');
+    try {
+      await onEdit(editingRecord.id, weightValue, editDate.toISOString());
+      setEditingRecord(null);
+      setEditWeight('');
+      setEditDate(new Date());
+      setShowDatePicker(false);
+    } catch (error) {
+      // Error is handled by parent component
+    }
   };
 
   const handleDelete = (id) => {
@@ -50,9 +53,8 @@ export default function WeightList({ weightRecords, onEdit, onDelete }) {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            onDelete(id);
-            Alert.alert('Success', 'Weight record deleted successfully!');
+          onPress: async () => {
+            await onDelete(id);
           },
         },
       ]
