@@ -42,9 +42,15 @@ export default function HomeScreen({ onNavigate }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.headerIconButton}
+          onPress={() => onNavigate('profile')}
+        >
+          <Ionicons name="person-outline" size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Fit Tracker</Text>
         <TouchableOpacity
-          style={styles.logoutButton}
+          style={styles.headerIconButton}
           onPress={handleLogout}
         >
           <Ionicons name="log-out-outline" size={24} color="#fff" />
@@ -114,8 +120,11 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  logoutButton: {
-    padding: 4,
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

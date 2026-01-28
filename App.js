@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import HomeScreen from './screens/HomeScreen';
 import WeightJournalScreen from './screens/WeightJournalScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,6 +35,8 @@ function AppNavigator() {
   switch (currentScreen) {
     case 'weight-journal':
       return <WeightJournalScreen onBack={handleBack} />;
+    case 'profile':
+      return <ProfileScreen onBack={handleBack} />;
     case 'home':
     default:
       return <HomeScreen onNavigate={handleNavigate} />;

@@ -160,6 +160,23 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // Profile endpoints
+  async getProfile() {
+    return await this.request('/profile');
+  }
+
+  async updateProfile(data) {
+    const body = {
+      first_name: data.first_name ?? null,
+      last_name: data.last_name ?? null,
+      age: data.age == null || data.age === '' ? null : Number(data.age),
+    };
+    return await this.request('/profile', {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
 }
 
 export default new ApiService();
