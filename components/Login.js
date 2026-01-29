@@ -35,6 +35,16 @@ export default function Login() {
     // If successful, the auth context will handle navigation
   };
 
+  const dark = {
+    background: '#070B14',
+    card: '#0B1120',
+    border: '#1B2438',
+    text: '#EAF2FF',
+    mutedText: '#7D8AA3',
+    primary: '#00FFD1',
+    inputBg: '#111A2F',
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -42,18 +52,18 @@ export default function Login() {
     >
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Ionicons name="fitness-outline" size={80} color="#4CAF50" />
+          <Ionicons name="fitness-outline" size={80} color={dark.primary} />
           <Text style={styles.title}>Fit Tracker</Text>
           <Text style={styles.subtitle}>Track your weight journey</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={20} color={dark.mutedText} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Username"
-              placeholderTextColor="#999"
+              placeholderTextColor={dark.mutedText}
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -63,11 +73,11 @@ export default function Login() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={20} color={dark.mutedText} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
-              placeholderTextColor="#999"
+              placeholderTextColor={dark.mutedText}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -84,14 +94,22 @@ export default function Login() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={dark.background} />
             ) : (
               <>
                 <Text style={styles.loginButtonText}>Login</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" style={styles.loginIcon} />
+                <Ionicons name="arrow-forward" size={20} color={dark.background} style={styles.loginIcon} />
               </>
             )}
           </TouchableOpacity>
+
+          {/* <View style={styles.testCredentialsContainer}>
+            <Text style={styles.testCredentialsText}>
+              Test credentials:{'\n'}
+              Username: testuser{'\n'}
+              Password: testpass123
+            </Text>
+          </View> */}
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -101,7 +119,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#070B14',
   },
   content: {
     flex: 1,
@@ -115,12 +133,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#EAF2FF',
     marginTop: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#7D8AA3',
     marginTop: 8,
   },
   form: {
@@ -129,17 +147,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#111A2F',
     borderRadius: 12,
     marginBottom: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    borderColor: '#1B2438',
   },
   inputIcon: {
     marginRight: 12,
@@ -148,27 +161,22 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     fontSize: 16,
-    color: '#333',
+    color: '#EAF2FF',
   },
   loginButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#00FFD1',
     borderRadius: 12,
     padding: 16,
     marginTop: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   loginButtonDisabled: {
     opacity: 0.6,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#070B14',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -178,14 +186,14 @@ const styles = StyleSheet.create({
   testCredentialsContainer: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: '#e3f2fd',
-    borderRadius: 8,
+    backgroundColor: 'rgba(0, 255, 209, 0.08)',
+    borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
+    borderLeftColor: '#00FFD1',
   },
   testCredentialsText: {
     fontSize: 12,
-    color: '#1976d2',
+    color: '#7D8AA3',
     lineHeight: 18,
   },
 });
