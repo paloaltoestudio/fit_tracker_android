@@ -13,7 +13,17 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function WeightList({ weightRecords, onEdit, onDelete }) {
+const darkTheme = {
+  card: '#0B1120',
+  border: '#1B2438',
+  text: '#EAF2FF',
+  mutedText: '#7D8AA3',
+  primary: '#00FFD1',
+  inputBg: '#111A2F',
+};
+
+export default function WeightList({ weightRecords, onEdit, onDelete, variant }) {
+  const isDark = variant === 'dark';
   const [editingRecord, setEditingRecord] = useState(null);
   const [editWeight, setEditWeight] = useState('');
   const [editDate, setEditDate] = useState(new Date());
@@ -186,16 +196,16 @@ export default function WeightList({ weightRecords, onEdit, onDelete }) {
 
               <View style={styles.buttonRow}>
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
+                  style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setEditingRecord(null)}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.button, styles.submitButton]}
+                  style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSaveEdit}
                 >
-                  <Text style={styles.submitButtonText}>Save</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -364,5 +374,67 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // Dark variant
+  titleDark: {
+    color: darkTheme.text,
+  },
+  emptyStateDark: {
+    backgroundColor: darkTheme.card,
+    borderWidth: 1,
+    borderColor: darkTheme.border,
+  },
+  emptyTextDark: {
+    color: darkTheme.mutedText,
+  },
+  emptySubtextDark: {
+    color: darkTheme.mutedText,
+  },
+  recordItemDark: {
+    backgroundColor: darkTheme.card,
+    borderWidth: 1,
+    borderColor: darkTheme.border,
+  },
+  weightTextDark: {
+    color: darkTheme.text,
+  },
+  recordDateTextDark: {
+    color: darkTheme.mutedText,
+  },
+  modalContentDark: {
+    backgroundColor: darkTheme.card,
+    borderWidth: 1,
+    borderColor: darkTheme.border,
+  },
+  modalTitleDark: {
+    color: darkTheme.text,
+  },
+  labelDark: {
+    color: darkTheme.mutedText,
+  },
+  inputDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+    color: darkTheme.text,
+  },
+  dateButtonDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+  },
+  dateTextDark: {
+    color: darkTheme.text,
+  },
+  cancelButtonDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+  },
+  cancelButtonTextDark: {
+    color: darkTheme.mutedText,
+  },
+  submitButtonDark: {
+    backgroundColor: darkTheme.primary,
+  },
+  submitButtonTextDark: {
+    color: darkTheme.card,
   },
 });

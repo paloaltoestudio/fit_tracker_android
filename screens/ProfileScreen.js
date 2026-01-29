@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ProfileScreen({ onBack }) {
+  const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,28 +77,43 @@ export default function ProfileScreen({ onBack }) {
     }
   };
 
+  const dark = {
+    background: '#070B14',
+    card: '#0B1120',
+    border: '#1B2438',
+    text: '#EAF2FF',
+    mutedText: '#7D8AA3',
+    primary: '#00FFD1',
+    inputBg: '#111A2F',
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
+      <StatusBar barStyle="light-content" backgroundColor={dark.background} />
       <View style={styles.header}>
         {onBack && (
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Ionicons name="arrow-back" size={24} color={dark.text} />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>Profile</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={logout}
+        >
+          <Ionicons name="log-out-outline" size={24} color={dark.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4CAF50" />
+            <ActivityIndicator size="large" color={dark.primary} />
             <Text style={styles.loadingText}>Loading profile...</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
-            <Ionicons name="alert-circle-outline" size={48} color="#f44336" />
+            <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity style={styles.retryButton} onPress={loadProfile}>
               <Text style={styles.retryButtonText}>Retry</Text>
@@ -115,7 +132,7 @@ export default function ProfileScreen({ onBack }) {
               <TextInput
                 style={styles.input}
                 placeholder="Enter first name"
-                placeholderTextColor="#999"
+                placeholderTextColor={dark.mutedText}
                 value={firstName}
                 onChangeText={setFirstName}
                 autoCapitalize="words"
@@ -128,7 +145,7 @@ export default function ProfileScreen({ onBack }) {
               <TextInput
                 style={styles.input}
                 placeholder="Enter last name"
-                placeholderTextColor="#999"
+                placeholderTextColor={dark.mutedText}
                 value={lastName}
                 onChangeText={setLastName}
                 autoCapitalize="words"
@@ -141,7 +158,7 @@ export default function ProfileScreen({ onBack }) {
               <TextInput
                 style={styles.input}
                 placeholder="Enter age"
-                placeholderTextColor="#999"
+                placeholderTextColor={dark.mutedText}
                 value={age}
                 onChangeText={setAge}
                 keyboardType="number-pad"
@@ -156,10 +173,10 @@ export default function ProfileScreen({ onBack }) {
               disabled={isSaving}
             >
               {isSaving ? (
-                <ActivityIndicator color="#fff" size="small" />
+                <ActivityIndicator color={dark.background} size="small" />
               ) : (
                 <>
-                  <Ionicons name="checkmark-circle-outline" size={22} color="#fff" />
+                  <Ionicons name="checkmark-circle-outline" size={22} color={dark.background} />
                   <Text style={styles.saveButtonText}>Save changes</Text>
                 </>
               )}
@@ -174,17 +191,14 @@ export default function ProfileScreen({ onBack }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#070B14',
   },
   header: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#0B1120',
     paddingVertical: 16,
     paddingHorizontal: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1B2438',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -192,22 +206,23 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#EAF2FF',
     flex: 1,
     textAlign: 'center',
   },
   backButton: {
     padding: 4,
   },
-  placeholder: {
+  rightButton: {
     width: 32,
+    alignItems: 'flex-end',
   },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 20,
-    paddingBottom: 32,
+    paddingBottom: 120,
   },
   loadingContainer: {
     flex: 1,
@@ -218,7 +233,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#7D8AA3',
   },
   errorContainer: {
     flex: 1,
@@ -229,30 +244,27 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#f44336',
+    color: '#EF4444',
     textAlign: 'center',
     marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#00FFD1',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   retryButtonText: {
-    color: '#fff',
+    color: '#070B14',
     fontSize: 16,
     fontWeight: 'bold',
   },
   form: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#0B1120',
+    borderRadius: 20,
     padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#1B2438',
   },
   field: {
     marginBottom: 20,
@@ -260,37 +272,37 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#7D8AA3',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: '#1B2438',
+    borderRadius: 12,
     padding: 14,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
-    color: '#333',
+    backgroundColor: '#111A2F',
+    color: '#EAF2FF',
   },
   readOnlyValue: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
+    borderColor: '#1B2438',
+    borderRadius: 12,
     padding: 14,
     fontSize: 16,
-    backgroundColor: '#f0f0f0',
-    color: '#666',
+    backgroundColor: '#111A2F',
+    color: '#7D8AA3',
   },
   hint: {
     fontSize: 12,
-    color: '#999',
+    color: '#7D8AA3',
     marginTop: 4,
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#00FFD1',
     padding: 16,
     borderRadius: 12,
     marginTop: 12,
@@ -300,7 +312,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    color: '#fff',
+    color: '#070B14',
     fontSize: 18,
     fontWeight: 'bold',
   },

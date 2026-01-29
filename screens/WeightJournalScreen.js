@@ -101,16 +101,25 @@ export default function WeightJournalScreen({ onBack }) {
     }
   };
 
+  const dark = {
+    background: '#070B14',
+    card: '#0B1120',
+    border: '#1B2438',
+    text: '#EAF2FF',
+    mutedText: '#7D8AA3',
+    primary: '#00FFD1',
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
+      <StatusBar barStyle="light-content" backgroundColor={dark.background} />
       <View style={styles.header}>
         {onBack && (
           <TouchableOpacity
             style={styles.backButton}
             onPress={onBack}
           >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Ionicons name="arrow-back" size={24} color={dark.text} />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>Weight Journal</Text>
@@ -119,12 +128,12 @@ export default function WeightJournalScreen({ onBack }) {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4CAF50" />
+            <ActivityIndicator size="large" color={dark.primary} />
             <Text style={styles.loadingText}>Loading weight records...</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
-            <Ionicons name="alert-circle-outline" size={48} color="#f44336" />
+            <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity
               style={styles.retryButton}
@@ -135,12 +144,13 @@ export default function WeightJournalScreen({ onBack }) {
           </View>
         ) : (
           <>
-            <WeightChart weightRecords={weightRecords} />
-            <WeightEntryForm onAdd={addWeightRecord} />
+            <WeightChart weightRecords={weightRecords} variant="dark" />
+            <WeightEntryForm onAdd={addWeightRecord} variant="dark" />
             <WeightList
               weightRecords={weightRecords}
               onEdit={editWeightRecord}
               onDelete={deleteWeightRecord}
+              variant="dark"
             />
           </>
         )}
@@ -152,17 +162,14 @@ export default function WeightJournalScreen({ onBack }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#070B14',
   },
   header: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#0B1120',
     paddingVertical: 16,
     paddingHorizontal: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1B2438',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -170,7 +177,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#EAF2FF',
     flex: 1,
     textAlign: 'center',
   },
@@ -178,14 +185,14 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   placeholder: {
-    width: 32, // Same width as back button for centering
+    width: 32,
   },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 120,
   },
   loadingContainer: {
     flex: 1,
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#7D8AA3',
   },
   errorContainer: {
     flex: 1,
@@ -207,18 +214,18 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#f44336',
+    color: '#EF4444',
     textAlign: 'center',
     marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#00FFD1',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   retryButtonText: {
-    color: '#fff',
+    color: '#070B14',
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -12,7 +12,17 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function WeightEntryForm({ onAdd }) {
+const darkTheme = {
+  card: '#0B1120',
+  border: '#1B2438',
+  text: '#EAF2FF',
+  mutedText: '#7D8AA3',
+  primary: '#00FFD1',
+  inputBg: '#111A2F',
+};
+
+export default function WeightEntryForm({ onAdd, variant }) {
+  const isDark = variant === 'dark';
   const [weight, setWeight] = useState('');
   const [date, setDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
@@ -40,11 +50,11 @@ export default function WeightEntryForm({ onAdd }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.addButton}
+        style={[styles.addButton, isDark && styles.addButtonDark]}
         onPress={() => setShowModal(true)}
       >
-        <Ionicons name="add-circle" size={24} color="#fff" />
-        <Text style={styles.addButtonText}>Add Weight Record</Text>
+        <Ionicons name="add-circle" size={24} color={isDark ? darkTheme.background : '#fff'} />
+        <Text style={[styles.addButtonText, isDark && styles.addButtonTextDark]}>Add Weight Record</Text>
       </TouchableOpacity>
 
       <Modal
@@ -54,29 +64,30 @@ export default function WeightEntryForm({ onAdd }) {
         onRequestClose={() => setShowModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add Weight Record</Text>
+              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>Add Weight Record</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color="#333" />
+                <Ionicons name="close" size={24} color={isDark ? darkTheme.text : '#333'} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.form}>
-              <Text style={styles.label}>Weight (kg)</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>Weight (kg)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, isDark && styles.inputDark]}
                 placeholder="Enter weight"
+                placeholderTextColor={isDark ? darkTheme.mutedText : undefined}
                 keyboardType="decimal-pad"
                 value={weight}
                 onChangeText={setWeight}
                 autoFocus={true}
               />
 
-              <Text style={styles.label}>Date</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>Date</Text>
               {Platform.OS === 'web' ? (
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, isDark && styles.inputDark]}
                   type="date"
                   value={date.toISOString().split('T')[0]}
                   max={new Date().toISOString().split('T')[0]}
@@ -89,11 +100,11 @@ export default function WeightEntryForm({ onAdd }) {
               ) : (
                 <>
                   <TouchableOpacity
-                    style={styles.dateButton}
+                    style={[styles.dateButton, isDark && styles.dateButtonDark]}
                     onPress={() => setShowDatePicker(true)}
                   >
-                    <Ionicons name="calendar-outline" size={20} color="#666" style={styles.dateIcon} />
-                    <Text style={styles.dateText}>
+                    <Ionicons name="calendar-outline" size={20} color={isDark ? darkTheme.mutedText : '#666'} style={styles.dateIcon} />
+                    <Text style={[styles.dateText, isDark && styles.dateTextDark]}>
                       {date.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -121,16 +132,16 @@ export default function WeightEntryForm({ onAdd }) {
 
               <View style={styles.buttonRow}>
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
+                  style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setShowModal(false)}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.button, styles.submitButton]}
+                  style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSubmit}
                 >
-                  <Text style={styles.submitButtonText}>Add</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Add</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -252,5 +263,48 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // Dark variant
+  addButtonDark: {
+    backgroundColor: darkTheme.primary,
+  },
+  addButtonTextDark: {
+    color: darkTheme.card,
+  },
+  modalContentDark: {
+    backgroundColor: darkTheme.card,
+    borderWidth: 1,
+    borderColor: darkTheme.border,
+  },
+  modalTitleDark: {
+    color: darkTheme.text,
+  },
+  labelDark: {
+    color: darkTheme.mutedText,
+  },
+  inputDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+    color: darkTheme.text,
+  },
+  dateButtonDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+  },
+  dateTextDark: {
+    color: darkTheme.text,
+  },
+  cancelButtonDark: {
+    backgroundColor: darkTheme.inputBg,
+    borderColor: darkTheme.border,
+  },
+  cancelButtonTextDark: {
+    color: darkTheme.mutedText,
+  },
+  submitButtonDark: {
+    backgroundColor: darkTheme.primary,
+  },
+  submitButtonTextDark: {
+    color: darkTheme.card,
   },
 });

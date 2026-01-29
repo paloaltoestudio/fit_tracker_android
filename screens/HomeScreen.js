@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,191 +7,371 @@ import {
   StatusBar,
   Text,
   TouchableOpacity,
+  Alert,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
+import WeightChart from '../components/WeightChart';
 
 export default function HomeScreen({ onNavigate }) {
-  const { logout } = useAuth();
+  const [weights, setWeights] = useState([]);
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.getWeights();
+        const arr = Array.isArray(data) ? data : [];
+        // Sort ASC by date for consistency (oldest -> newest)
+        arr.sort((a, b) => new Date(a.date) - new Date(b.date));
+        setWeights(arr);
+      } catch (e) {
+        // Home should still render even if weights fail
+        console.error('Home weights load error:', e);
+      }
+    })();
+  }, []);
 
-  const menuItems = [
-    {
-      id: 'weight-journal',
-      title: 'Weight Journal',
-      icon: 'fitness-outline',
-      description: 'Track and monitor your weight over time',
-      color: '#4CAF50',
-      onPress: () => onNavigate('weight-journal'),
-    },
-    // Add more menu items here in the future
-    // {
-    //   id: 'workouts',
-    //   title: 'Workouts',
-    //   icon: 'barbell-outline',
-    //   description: 'Log your exercise routines',
-    //   color: '#2196F3',
-    //   onPress: () => onNavigate('workouts'),
-    // },
-  ];
+  const currentWeight = useMemo(() => {
+    if (!weights.length) return null;
+    return weights[weights.length - 1]?.weight ?? null;
+  }, [weights]);
+
+  const weightDelta = useMemo(() => {
+    if (weights.length < 2) return null;
+    const last = Number(weights[weights.length - 1]?.weight);
+    const prev = Number(weights[weights.length - 2]?.weight);
+    if (Number.isNaN(last) || Number.isNaN(prev)) return null;
+    return last - prev;
+  }, [weights]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerIconButton}
-          onPress={() => onNavigate('profile')}
-        >
-          <Ionicons name="person-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Fit Tracker</Text>
-        <TouchableOpacity
-          style={styles.headerIconButton}
-          onPress={handleLogout}
-        >
-          <Ionicons name="log-out-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <View style={styles.welcomeContainer}>
-          <Ionicons name="fitness" size={64} color="#4CAF50" />
-          <Text style={styles.welcomeTitle}>Welcome!</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Choose a section to get started
-          </Text>
-        </View>
+        <Text style={styles.kicker}>Welcome back</Text>
+        <Text style={styles.heroTitle}>Let&apos;s crush it today!</Text>
 
-        <View style={styles.menuContainer}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.menuItem}
-              onPress={item.onPress}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.menuIconContainer, { backgroundColor: `${item.color}20` }]}>
-                <Ionicons name={item.icon} size={32} color={item.color} />
+        <View style={styles.grid2}>
+          {/* Current weight card */}
+          <View style={[styles.card, styles.cardHalf]}>
+            <View style={styles.cardTopRow}>
+              <View style={[styles.iconBadge, { backgroundColor: 'rgba(0,255,209,0.12)' }]}>
+                <Ionicons name="scale-outline" size={22} color={colors.primary} />
               </View>
-              <View style={styles.menuTextContainer}>
-                <Text style={styles.menuItemTitle}>{item.title}</Text>
-                <Text style={styles.menuItemDescription}>{item.description}</Text>
+              <View style={[styles.pill, weightDelta != null && weightDelta < 0 ? styles.pillDown : styles.pillUp]}>
+                <Ionicons
+                  name={weightDelta != null && weightDelta < 0 ? 'arrow-down' : 'arrow-up'}
+                  size={14}
+                  color={weightDelta != null && weightDelta < 0 ? colors.destructive : colors.success}
+                />
+                <Text style={[styles.pillText, { color: weightDelta != null && weightDelta < 0 ? colors.destructive : colors.success }]}>
+                  {weightDelta == null ? '—' : `${Math.abs(weightDelta).toFixed(1)}kg`}
+                </Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#ccc" />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {menuItems.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No sections available</Text>
+            </View>
+            <Text style={styles.cardLabel}>Current Weight</Text>
+            <View style={styles.valueRow}>
+              <Text style={styles.cardValue}>{currentWeight == null ? '—' : Number(currentWeight).toFixed(1)}</Text>
+              <Text style={styles.cardUnit}>kg</Text>
+            </View>
           </View>
-        )}
+
+          {/* Muscle index card (placeholder) */}
+          <View style={[styles.card, styles.cardHalf]}>
+            <View style={styles.cardTopRow}>
+              <View style={[styles.iconBadge, { backgroundColor: 'rgba(34,197,94,0.12)' }]}>
+                <Ionicons name="pulse-outline" size={22} color={colors.success} />
+              </View>
+              <View style={[styles.pill, styles.pillUp]}>
+                <Ionicons name="arrow-up" size={14} color={colors.success} />
+                <Text style={[styles.pillText, { color: colors.success }]}>2%</Text>
+              </View>
+            </View>
+            <Text style={styles.cardLabel}>Muscle Index</Text>
+            <View style={styles.valueRow}>
+              <Text style={styles.cardValue}>42</Text>
+              <Text style={styles.cardUnit}>%</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Streak card */}
+        <View style={[styles.card, styles.cardWide]}>
+          <View style={styles.cardTopRow}>
+            <View style={[styles.iconBadge, { backgroundColor: 'rgba(245,158,11,0.14)' }]}>
+              <Ionicons name="flame-outline" size={22} color={colors.warning} />
+            </View>
+          </View>
+          <Text style={styles.cardLabel}>Workout Streak</Text>
+          <View style={styles.valueRow}>
+            <Text style={[styles.cardValue, { color: colors.warning }]}>12</Text>
+            <Text style={styles.cardUnit}>days</Text>
+          </View>
+          <Text style={styles.mutedSmall}>Keep pushing! 💪</Text>
+        </View>
+
+        {/* This week trainings */}
+        <View style={[styles.card, styles.cardWide]}>
+          <Text style={styles.sectionTitle}>This Week</Text>
+          <View style={styles.weekRow}>
+            {[
+              { d: 'M', done: true },
+              { d: 'T', done: true },
+              { d: 'W', done: true },
+              { d: 'T', done: true },
+              { d: 'F', done: false },
+              { d: 'S', done: false },
+              { d: 'S', done: false },
+            ].map((x, idx) => (
+              <View key={`${x.d}-${idx}`} style={styles.dayCol}>
+                <View style={[styles.dayDot, x.done ? styles.dayDotDone : styles.dayDotEmpty]}>
+                  {x.done && <Ionicons name="checkmark" size={18} color={colors.background} />}
+                </View>
+                <Text style={styles.dayLabel}>{x.d}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Quick actions */}
+        <Text style={styles.quickTitle}>Quick Actions</Text>
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            style={styles.quickItem}
+            activeOpacity={0.8}
+            onPress={() => onNavigate('weight')}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: 'rgba(0,255,209,0.10)' }]}>
+              <Ionicons name="add" size={28} color={colors.primary} />
+            </View>
+            <Text style={styles.quickLabel}>Log Weight</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.quickItem}
+            activeOpacity={0.8}
+            onPress={() => Alert.alert('Coming soon', 'Stats page will be added later.')}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: 'rgba(34,197,94,0.10)' }]}>
+              <Ionicons name="trending-up" size={26} color={colors.success} />
+            </View>
+            <Text style={styles.quickLabel}>View Stats</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.quickItem}
+            activeOpacity={0.8}
+            onPress={() => Alert.alert('Coming soon', 'Goal setting will be added later.')}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: 'rgba(245,158,11,0.10)' }]}>
+              <Ionicons name="disc-outline" size={26} color={colors.warning} />
+            </View>
+            <Text style={styles.quickLabel}>Set Goal</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Weight progress chart - same component as Weight page, dark theme */}
+        <View style={styles.chartSection}>
+          <WeightChart weightRecords={weights} variant="dark" />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+const colors = {
+  background: '#070B14', // hsl(222 47% 6%)
+  card: '#0B1120', // hsl(222 47% 9%)
+  card2: '#091022',
+  text: '#EAF2FF',
+  mutedText: '#7D8AA3',
+  primary: '#00FFD1', // hsl(174 100% 50%)
+  success: '#22C55E',
+  warning: '#F59E0B',
+  destructive: '#EF4444',
+  border: '#1B2438',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    flex: 1,
-    textAlign: 'center',
-  },
-  headerIconButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: 22,
+    paddingBottom: 140,
   },
-  welcomeContainer: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    marginBottom: 24,
-  },
-  welcomeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginTop: 16,
-  },
-  welcomeSubtitle: {
+  kicker: {
+    color: colors.mutedText,
     fontSize: 16,
-    color: '#666',
     marginTop: 8,
-    textAlign: 'center',
   },
-  menuContainer: {
+  heroTitle: {
+    color: colors.text,
+    fontSize: 34,
+    fontWeight: '800',
+    marginTop: 8,
+  },
+  grid2: {
+    flexDirection: 'row',
     gap: 16,
+    marginTop: 22,
   },
-  menuItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  cardHalf: {
+    flex: 1,
+    minHeight: 140,
+  },
+  cardWide: {
+    marginTop: 18,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  iconBadge: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    gap: 6,
+    borderWidth: 1,
   },
-  menuIconContainer: {
+  pillUp: {
+    backgroundColor: 'rgba(34,197,94,0.10)',
+    borderColor: 'rgba(34,197,94,0.18)',
+  },
+  pillDown: {
+    backgroundColor: 'rgba(239,68,68,0.10)',
+    borderColor: 'rgba(239,68,68,0.18)',
+  },
+  pillText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  cardLabel: {
+    color: colors.mutedText,
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  cardValue: {
+    color: colors.text,
+    fontSize: 44,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  cardUnit: {
+    color: colors.mutedText,
+    fontSize: 20,
+    paddingBottom: 6,
+  },
+  mutedSmall: {
+    color: colors.mutedText,
+    marginTop: 10,
+    fontSize: 14,
+  },
+  sectionTitle: {
+    color: colors.mutedText,
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  weekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    columnGap: 10
+  },
+  dayCol: {
+    alignItems: 'center',
+    width: 20,
+  },
+  dayDot: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  dayDotDone: {
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  dayDotEmpty: {
+    backgroundColor: '#111A2F',
+    borderWidth: 1,
+    borderColor: '#121C33',
+  },
+  dayLabel: {
+    color: colors.mutedText,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  quickTitle: {
+    marginTop: 22,
+    marginBottom: 12,
+    color: colors.mutedText,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  quickRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  quickItem: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  quickIcon: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: 20,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+    marginBottom: 10,
   },
-  menuTextContainer: {
-    flex: 1,
-  },
-  menuItemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  menuItemDescription: {
+  quickLabel: {
+    color: colors.mutedText,
     fontSize: 14,
-    color: '#666',
+    textAlign: 'center',
   },
-  emptyState: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999',
+  chartSection: {
+    marginTop: 22,
   },
 });
