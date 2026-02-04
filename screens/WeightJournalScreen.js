@@ -15,6 +15,7 @@ import WeightEntryForm from '../components/WeightEntryForm';
 import WeightList from '../components/WeightList';
 import WeightChart from '../components/WeightChart';
 import api from '../services/api';
+import { t } from '../i18n';
 
 export default function WeightJournalScreen({ onBack }) {
   const [weightRecords, setWeightRecords] = useState([]);
@@ -45,8 +46,8 @@ export default function WeightJournalScreen({ onBack }) {
       setWeightRecords(sortedWeights);
     } catch (err) {
       console.error('Error loading weights:', err);
-      setError(err.message || 'Failed to load weight records');
-      Alert.alert('Error', err.message || 'Failed to load weight records');
+      setError(err.message || t('weight.failedToLoad'));
+      Alert.alert(t('common.error'), err.message || t('weight.failedToLoad'));
     } finally {
       setIsLoading(false);
     }
@@ -60,10 +61,10 @@ export default function WeightJournalScreen({ onBack }) {
       // Reload weights to get the complete list with IDs from server
       await loadWeights();
       
-      Alert.alert('Success', 'Weight record added successfully!');
+      Alert.alert(t('common.success'), t('weight.addSuccess'));
     } catch (err) {
       console.error('Error adding weight:', err);
-      Alert.alert('Error', err.message || 'Failed to add weight record');
+      Alert.alert(t('common.error'), err.message || t('weight.addError'));
       throw err;
     }
   };
@@ -76,10 +77,10 @@ export default function WeightJournalScreen({ onBack }) {
       // Reload weights to get updated data
       await loadWeights();
       
-      Alert.alert('Success', 'Weight record updated successfully!');
+      Alert.alert(t('common.success'), t('weight.updateSuccess'));
     } catch (err) {
       console.error('Error updating weight:', err);
-      Alert.alert('Error', err.message || 'Failed to update weight record');
+      Alert.alert(t('common.error'), err.message || t('weight.updateError'));
       throw err;
     }
   };
@@ -92,10 +93,10 @@ export default function WeightJournalScreen({ onBack }) {
       // Remove from local state immediately for better UX
       setWeightRecords(prev => prev.filter(record => record.id !== id));
       
-      Alert.alert('Success', 'Weight record deleted successfully!');
+      Alert.alert(t('common.success'), t('weight.deleteSuccess'));
     } catch (err) {
       console.error('Error deleting weight:', err);
-      Alert.alert('Error', err.message || 'Failed to delete weight record');
+      Alert.alert(t('common.error'), err.message || t('weight.deleteError'));
       // Reload on error to sync with server
       await loadWeights();
     }
@@ -122,14 +123,14 @@ export default function WeightJournalScreen({ onBack }) {
             <Ionicons name="arrow-back" size={24} color={dark.text} />
           </TouchableOpacity>
         )}
-        <Text style={styles.headerTitle}>Weight Journal</Text>
+        <Text style={styles.headerTitle}>{t('weight.journalTitle')}</Text>
         <View style={styles.placeholder} />
       </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={dark.primary} />
-            <Text style={styles.loadingText}>Loading weight records...</Text>
+            <Text style={styles.loadingText}>{t('weight.loadingWeights')}</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
@@ -139,7 +140,7 @@ export default function WeightJournalScreen({ onBack }) {
               style={styles.retryButton}
               onPress={loadWeights}
             >
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
             </TouchableOpacity>
           </View>
         ) : (

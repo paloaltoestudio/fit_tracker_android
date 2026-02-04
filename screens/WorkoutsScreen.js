@@ -1,13 +1,14 @@
 import React from 'react';
 import { SafeAreaView, View, Text, StyleSheet, StatusBar } from 'react-native';
+import { t } from '../i18n';
 
 export default function WorkoutsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <View style={styles.content}>
-        <Text style={styles.title}>Workouts</Text>
-        <Text style={styles.subtitle}>Coming soon</Text>
+        <Text style={styles.title}>{t('workouts.title')}</Text>
+        <Text style={styles.subtitle}>{t('workouts.comingSoon')}</Text>
       </View>
     </SafeAreaView>
   );

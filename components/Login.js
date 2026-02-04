@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { t } from '../i18n';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -22,7 +23,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both username and password');
+      Alert.alert(t('common.error'), t('login.errorBoth'));
       return;
     }
 
@@ -31,7 +32,7 @@ export default function Login() {
     setIsLoading(false);
 
     if (!result.success) {
-      Alert.alert('Login Failed', result.error);
+      Alert.alert(t('login.loginFailed'), result.error);
     }
     // If successful, the auth context will handle navigation
   };
@@ -54,8 +55,8 @@ export default function Login() {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           <Ionicons name="fitness-outline" size={80} color={dark.primary} />
-          <Text style={styles.title}>Fit Tracker</Text>
-          <Text style={styles.subtitle}>Track your weight journey</Text>
+          <Text style={styles.title}>{t('login.title')}</Text>
+          <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
         </View>
 
         <View style={styles.form}>
@@ -63,7 +64,7 @@ export default function Login() {
             <Ionicons name="person-outline" size={20} color={dark.mutedText} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Username"
+              placeholder={t('login.username')}
               placeholderTextColor={dark.mutedText}
               value={username}
               onChangeText={setUsername}
@@ -77,7 +78,7 @@ export default function Login() {
             <Ionicons name="lock-closed-outline" size={20} color={dark.mutedText} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t('login.password')}
               placeholderTextColor={dark.mutedText}
               value={password}
               onChangeText={setPassword}
@@ -109,7 +110,7 @@ export default function Login() {
               <ActivityIndicator color={dark.background} />
             ) : (
               <>
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.loginButtonText}>{t('login.loginButton')}</Text>
                 <Ionicons name="arrow-forward" size={20} color={dark.background} style={styles.loginIcon} />
               </>
             )}

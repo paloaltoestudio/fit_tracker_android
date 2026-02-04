@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { t } from '../i18n';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -21,10 +22,10 @@ export default function MuscleIndexChart({ records, variant }) {
   if (!records || records.length === 0) {
     return (
       <View style={[styles.container, isDark && styles.containerDark]}>
-        <Text style={[styles.title, isDark && styles.titleDark]}>Muscle Index</Text>
+        <Text style={[styles.title, isDark && styles.titleDark]}>{t('muscleIndex.title')}</Text>
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>No data to display</Text>
-          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>Add or calculate muscle index to see the chart</Text>
+          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>{t('common.noData')}</Text>
+          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>{t('muscleIndex.chartEmpty')}</Text>
         </View>
       </View>
     );
@@ -97,7 +98,7 @@ export default function MuscleIndexChart({ records, variant }) {
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
-      <Text style={[styles.title, isDark && styles.titleDark]}>Muscle Index</Text>
+      <Text style={[styles.title, isDark && styles.titleDark]}>{t('muscleIndex.title')}</Text>
       <View style={styles.chartContainer}>
         <LineChart
           data={chartData}
@@ -112,25 +113,25 @@ export default function MuscleIndexChart({ records, variant }) {
       </View>
       <View style={[styles.statsContainer, isDark && styles.statsContainerDark]}>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Current</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.current')}</Text>
           <Text style={[styles.statValue, isDark && styles.statValueDark]}>{latest}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Average</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.average')}</Text>
           <Text style={[styles.statValue, isDark && styles.statValueDark]}>{avgVal}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Min</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.min')}</Text>
           <Text style={[styles.statValue, isDark && styles.statValueDark]}>{minVal}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Max</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.max')}</Text>
           <Text style={[styles.statValue, isDark && styles.statValueDark]}>{maxVal}</Text>
         </View>
       </View>
       {records.length > 1 && (
         <View style={[styles.differenceContainer, isDark && styles.differenceContainerDark]}>
-          <Text style={[styles.differenceLabel, isDark && styles.differenceLabelDark]}>Total Change:</Text>
+          <Text style={[styles.differenceLabel, isDark && styles.differenceLabelDark]}>{t('common.totalChange')}:</Text>
           <Text
             style={[
               styles.differenceValue,

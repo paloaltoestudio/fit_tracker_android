@@ -1,6 +1,8 @@
+import './i18n';
 import React, { useState, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LocaleProvider } from './contexts/LocaleContext';
 import Login from './components/Login';
 import BottomTabBar from './components/BottomTabBar';
 import HomeScreen from './screens/HomeScreen';
@@ -60,7 +62,9 @@ function AppNavigator() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <LocaleProvider>
+        <AppNavigator />
+      </LocaleProvider>
     </AuthProvider>
   );
 }

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '../i18n';
 
 const darkTheme = {
   card: '#0B1120',
@@ -32,7 +33,7 @@ export default function WeightEntryForm({ onAdd, variant }) {
     const weightValue = parseFloat(weight);
     
     if (!weight || isNaN(weightValue) || weightValue <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid weight.');
+      Alert.alert(t('common.invalidInput'), t('weight.validWeight'));
       return;
     }
 
@@ -54,7 +55,7 @@ export default function WeightEntryForm({ onAdd, variant }) {
         onPress={() => setShowModal(true)}
       >
         <Ionicons name="add-circle" size={24} color={isDark ? darkTheme.background : '#fff'} />
-        <Text style={[styles.addButtonText, isDark && styles.addButtonTextDark]}>Add Weight Record</Text>
+        <Text style={[styles.addButtonText, isDark && styles.addButtonTextDark]}>{t('weight.addRecord')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -66,17 +67,17 @@ export default function WeightEntryForm({ onAdd, variant }) {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>Add Weight Record</Text>
+              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>{t('weight.addRecord')}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Ionicons name="close" size={24} color={isDark ? darkTheme.text : '#333'} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.form}>
-              <Text style={[styles.label, isDark && styles.labelDark]}>Weight (kg)</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('weight.weightKg')}</Text>
               <TextInput
                 style={[styles.input, isDark && styles.inputDark]}
-                placeholder="Enter weight"
+                placeholder={t('weight.enterWeight')}
                 placeholderTextColor={isDark ? darkTheme.mutedText : undefined}
                 keyboardType="decimal-pad"
                 value={weight}
@@ -84,7 +85,7 @@ export default function WeightEntryForm({ onAdd, variant }) {
                 autoFocus={true}
               />
 
-              <Text style={[styles.label, isDark && styles.labelDark]}>Date</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('common.date')}</Text>
               {Platform.OS === 'web' ? (
                 <TextInput
                   style={[styles.input, isDark && styles.inputDark]}
@@ -135,13 +136,13 @@ export default function WeightEntryForm({ onAdd, variant }) {
                   style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setShowModal(false)}
                 >
-                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSubmit}
                 >
-                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Add</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>{t('common.add')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

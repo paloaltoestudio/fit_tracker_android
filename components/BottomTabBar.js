@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '../i18n';
 
 const TABS = [
-  { key: 'home', label: 'Home', icon: 'home-outline', iconActive: 'home' },
-  { key: 'weight', label: 'Weight', icon: 'scale-outline', iconActive: 'scale' },
-  { key: 'body', label: 'Body', icon: 'body-outline', iconActive: 'body' },
-  { key: 'workouts', label: 'Workouts', icon: 'barbell-outline', iconActive: 'barbell' },
-  { key: 'profile', label: 'Profile', icon: 'person-outline', iconActive: 'person' },
+  { key: 'home', icon: 'home-outline', iconActive: 'home' },
+  { key: 'weight', icon: 'scale-outline', iconActive: 'scale' },
+  { key: 'body', icon: 'body-outline', iconActive: 'body' },
+  { key: 'workouts', icon: 'barbell-outline', iconActive: 'barbell' },
+  { key: 'profile', icon: 'person-outline', iconActive: 'person' },
 ];
 
 export default function BottomTabBar({ activeTab, onTabPress }) {
@@ -29,7 +30,7 @@ export default function BottomTabBar({ activeTab, onTabPress }) {
                 color={isActive ? colors.primary : colors.mutedText}
               />
             </View>
-            <Text style={[styles.label, isActive && styles.labelActive]}>{tab.label}</Text>
+            <Text style={[styles.label, isActive && styles.labelActive]}>{t(`tabs.${tab.key}`)}</Text>
           </TouchableOpacity>
         );
       })}

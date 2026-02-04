@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
+import { t } from '../i18n';
 import MuscleIndexChart from '../components/MuscleIndexChart';
 import MuscleIndexEntryForm from '../components/MuscleIndexEntryForm';
 import MuscleIndexList from '../components/MuscleIndexList';
@@ -48,8 +49,8 @@ export default function MuscleIndexScreen() {
       setRecords(sorted);
     } catch (err) {
       console.error('Error loading muscle index:', err);
-      setError(err.message || 'Failed to load muscle index');
-      Alert.alert('Error', err.message || 'Failed to load muscle index');
+      setError(err.message || t('muscleIndex.failedToLoad'));
+      Alert.alert(t('common.error'), err.message || t('muscleIndex.failedToLoad'));
     } finally {
       setIsLoading(false);
     }
@@ -63,10 +64,10 @@ export default function MuscleIndexScreen() {
     try {
       await api.createMetric('muscle_index', date, { index: indexValue });
       await loadMetrics();
-      Alert.alert('Success', 'Muscle index added.');
+      Alert.alert(t('common.success'), t('muscleIndex.addSuccess'));
     } catch (err) {
       console.error('Error adding muscle index:', err);
-      Alert.alert('Error', err.message || 'Failed to add muscle index');
+      Alert.alert(t('common.error'), err.message || t('muscleIndex.addError'));
       throw err;
     }
   };
@@ -75,10 +76,10 @@ export default function MuscleIndexScreen() {
     try {
       await api.updateMetric(id, { index: indexValue }, date);
       await loadMetrics();
-      Alert.alert('Success', 'Muscle index updated.');
+      Alert.alert(t('common.success'), t('muscleIndex.updateSuccess'));
     } catch (err) {
       console.error('Error updating muscle index:', err);
-      Alert.alert('Error', err.message || 'Failed to update muscle index');
+      Alert.alert(t('common.error'), err.message || t('muscleIndex.updateError'));
       throw err;
     }
   };
@@ -87,10 +88,10 @@ export default function MuscleIndexScreen() {
     try {
       await api.deleteMetric(id);
       setRecords((prev) => prev.filter((r) => r.id !== id));
-      Alert.alert('Success', 'Muscle index deleted.');
+      Alert.alert(t('common.success'), t('muscleIndex.deleteSuccess'));
     } catch (err) {
       console.error('Error deleting muscle index:', err);
-      Alert.alert('Error', err.message || 'Failed to delete muscle index');
+      Alert.alert(t('common.error'), err.message || t('muscleIndex.deleteError'));
       await loadMetrics();
     }
   };
@@ -107,33 +108,27 @@ export default function MuscleIndexScreen() {
       const weightKg = latestWeight && typeof latestWeight.weight === 'number' ? latestWeight.weight : null;
 
       if (!heightCm || heightCm <= 0) {
-        Alert.alert(
-          'Missing data',
-          'Please set your height (cm) in Profile. It is used to calculate muscle index from your weight.'
-        );
+        Alert.alert(t('common.error'), t('muscleIndex.missingHeight'));
         return;
       }
       if (!weightKg || weightKg <= 0) {
-        Alert.alert(
-          'Missing data',
-          'Add at least one weight record so we can calculate your muscle index from weight and height.'
-        );
+        Alert.alert(t('common.error'), t('muscleIndex.missingWeight'));
         return;
       }
 
       const index = calculateMuscleIndex(weightKg, heightCm, gender);
       if (index == null || index <= 0) {
-        Alert.alert('Calculation failed', 'Could not compute muscle index with your current data.');
+        Alert.alert(t('common.error'), t('muscleIndex.calcFailed'));
         return;
       }
 
       const today = new Date().toISOString().split('T')[0];
       await api.createMetric('muscle_index', today, { index });
       await loadMetrics();
-      Alert.alert('Done', `Muscle index calculated: ${index} (saved for today).`);
+      Alert.alert(t('common.success'), t('muscleIndex.calcDone', { value: index }));
     } catch (err) {
       console.error('Error calculating muscle index:', err);
-      Alert.alert('Error', err.message || 'Failed to calculate muscle index');
+      Alert.alert(t('common.error'), err.message || t('muscleIndex.calcError'));
     } finally {
       setIsCalculating(false);
     }
@@ -153,21 +148,21 @@ export default function MuscleIndexScreen() {
       <StatusBar barStyle="light-content" backgroundColor={dark.background} />
       <View style={styles.header}>
         <View style={styles.placeholder} />
-        <Text style={styles.headerTitle}>Muscle Index</Text>
+        <Text style={styles.headerTitle}>{t('muscleIndex.title')}</Text>
         <View style={styles.placeholder} />
       </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={dark.primary} />
-            <Text style={styles.loadingText}>Loading...</Text>
+            <Text style={styles.loadingText}>{t('common.loading')}</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
             <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity style={styles.retryButton} onPress={loadMetrics}>
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -184,12 +179,12 @@ export default function MuscleIndexScreen() {
               ) : (
                 <>
                   <Ionicons name="calculator-outline" size={22} color={dark.background} />
-                  <Text style={styles.calcButtonText}>Calculate muscle index</Text>
+                  <Text style={styles.calcButtonText}>{t('muscleIndex.calculate')}</Text>
                 </>
               )}
             </TouchableOpacity>
             <Text style={styles.calcHint}>
-              Uses your latest weight, profile height and gender (Boer formula) and saves the result for today.
+              {t('muscleIndex.calcHint')}
             </Text>
 
             <MuscleIndexEntryForm onAdd={addRecord} variant="dark" />

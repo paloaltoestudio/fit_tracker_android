@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '../i18n';
 
 const darkTheme = {
   card: '#0B1120',
@@ -39,7 +40,7 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
     const weightValue = parseFloat(editWeight);
     
     if (!editWeight || isNaN(weightValue) || weightValue <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid weight.');
+      Alert.alert(t('common.invalidInput'), t('weight.validWeight'));
       return;
     }
 
@@ -56,12 +57,12 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
 
   const handleDelete = (id) => {
     Alert.alert(
-      'Delete Record',
-      'Are you sure you want to delete this record?',
+      t('weight.deleteRecord'),
+      t('weight.deleteConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             await onDelete(id);
@@ -83,7 +84,7 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
   const renderItem = ({ item }) => (
     <View style={styles.recordItem}>
       <View style={styles.recordInfo}>
-        <Text style={styles.weightText}>{item.weight} kg</Text>
+        <Text style={styles.weightText}>{item.weight} {t('home.kg')}</Text>
         <Text style={styles.dateText}>{formatDate(item.date)}</Text>
       </View>
       <View style={styles.actions}>
@@ -105,13 +106,13 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Weight Records</Text>
+      <Text style={styles.title}>{t('weight.weightRecords')}</Text>
       
       {weightRecords.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="scale-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>No weight records yet</Text>
-          <Text style={styles.emptySubtext}>Add your first record to get started</Text>
+          <Text style={styles.emptyText}>{t('weight.noRecords')}</Text>
+          <Text style={styles.emptySubtext}>{t('weight.addFirst')}</Text>
         </View>
       ) : (
         <FlatList
@@ -131,24 +132,24 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Weight Record</Text>
+              <Text style={styles.modalTitle}>{t('weight.editRecord')}</Text>
               <TouchableOpacity onPress={() => setEditingRecord(null)}>
                 <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.form}>
-              <Text style={styles.label}>Weight (kg)</Text>
+              <Text style={styles.label}>{t('weight.weightKg')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter weight"
+                placeholder={t('weight.enterWeight')}
                 keyboardType="decimal-pad"
                 value={editWeight}
                 onChangeText={setEditWeight}
                 autoFocus={true}
               />
 
-              <Text style={styles.label}>Date</Text>
+              <Text style={styles.label}>{t('common.date')}</Text>
               {Platform.OS === 'web' ? (
                 <TextInput
                   style={styles.input}
@@ -199,13 +200,13 @@ export default function WeightList({ weightRecords, onEdit, onDelete, variant })
                   style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setEditingRecord(null)}
                 >
-                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSaveEdit}
                 >
-                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Save</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>{t('common.save')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

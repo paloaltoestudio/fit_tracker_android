@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import WeightChart from '../components/WeightChart';
+import { t } from '../i18n';
 
 export default function HomeScreen({ onNavigate }) {
   const [weights, setWeights] = useState([]);
@@ -76,8 +77,8 @@ export default function HomeScreen({ onNavigate }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.kicker}>Welcome back</Text>
-        <Text style={styles.heroTitle}>Let&apos;s crush it today!</Text>
+        <Text style={styles.kicker}>{t('home.welcomeBack')}</Text>
+        <Text style={styles.heroTitle}>{t('home.heroTitle')}</Text>
 
         <View style={styles.grid2}>
           {/* Current weight card */}
@@ -97,10 +98,10 @@ export default function HomeScreen({ onNavigate }) {
                 </Text>
               </View>
             </View>
-            <Text style={styles.cardLabel}>Current Weight</Text>
+            <Text style={styles.cardLabel}>{t('home.currentWeight')}</Text>
             <View style={styles.valueRow}>
               <Text style={styles.cardValue}>{currentWeight == null ? '—' : Number(currentWeight).toFixed(1)}</Text>
-              <Text style={styles.cardUnit}>kg</Text>
+              <Text style={styles.cardUnit}>{t('home.kg')}</Text>
             </View>
           </View>
 
@@ -127,7 +128,7 @@ export default function HomeScreen({ onNavigate }) {
                 </View>
               )}
             </View>
-            <Text style={styles.cardLabel}>Muscle Index</Text>
+            <Text style={styles.cardLabel}>{t('home.muscleIndex')}</Text>
             <View style={styles.valueRow}>
               <Text style={styles.cardValue}>{currentMuscleIndex == null ? '—' : Number(currentMuscleIndex).toFixed(1)}</Text>
             </View>
@@ -141,17 +142,17 @@ export default function HomeScreen({ onNavigate }) {
               <Ionicons name="flame-outline" size={22} color={colors.warning} />
             </View>
           </View>
-          <Text style={styles.cardLabel}>Workout Streak</Text>
+          <Text style={styles.cardLabel}>{t('home.workoutStreak')}</Text>
           <View style={styles.valueRow}>
             <Text style={[styles.cardValue, { color: colors.warning }]}>12</Text>
-            <Text style={styles.cardUnit}>days</Text>
+            <Text style={styles.cardUnit}>{t('home.days')}</Text>
           </View>
-          <Text style={styles.mutedSmall}>Keep pushing! 💪</Text>
+          <Text style={styles.mutedSmall}>{t('home.keepPushing')}</Text>
         </View>
 
         {/* This week trainings */}
         <View style={[styles.card, styles.cardWide]}>
-          <Text style={styles.sectionTitle}>This Week</Text>
+          <Text style={styles.sectionTitle}>{t('home.thisWeek')}</Text>
           <View style={styles.weekRow}>
             {[
               { d: 'M', done: true },
@@ -173,7 +174,7 @@ export default function HomeScreen({ onNavigate }) {
         </View>
 
         {/* Quick actions */}
-        <Text style={styles.quickTitle}>Quick Actions</Text>
+        <Text style={styles.quickTitle}>{t('home.quickActions')}</Text>
         <View style={styles.quickRow}>
           <TouchableOpacity
             style={styles.quickItem}
@@ -183,29 +184,29 @@ export default function HomeScreen({ onNavigate }) {
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(0,255,209,0.10)' }]}>
               <Ionicons name="add" size={28} color={colors.primary} />
             </View>
-            <Text style={styles.quickLabel}>Log Weight</Text>
+            <Text style={styles.quickLabel}>{t('home.logWeight')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.quickItem}
             activeOpacity={0.8}
-            onPress={() => Alert.alert('Coming soon', 'Stats page will be added later.')}
+            onPress={() => Alert.alert(t('home.comingSoon'), t('home.comingSoonStats'))}
           >
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(34,197,94,0.10)' }]}>
               <Ionicons name="trending-up" size={26} color={colors.success} />
             </View>
-            <Text style={styles.quickLabel}>View Stats</Text>
+            <Text style={styles.quickLabel}>{t('home.viewStats')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.quickItem}
             activeOpacity={0.8}
-            onPress={() => Alert.alert('Coming soon', 'Goal setting will be added later.')}
+            onPress={() => Alert.alert(t('home.comingSoon'), t('home.comingSoonGoal'))}
           >
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(245,158,11,0.10)' }]}>
               <Ionicons name="disc-outline" size={26} color={colors.warning} />
             </View>
-            <Text style={styles.quickLabel}>Set Goal</Text>
+            <Text style={styles.quickLabel}>{t('home.setGoal')}</Text>
           </TouchableOpacity>
         </View>
 

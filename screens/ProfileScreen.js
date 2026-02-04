@@ -14,9 +14,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocale } from '../contexts/LocaleContext';
+import { t } from '../i18n';
 
 export default function ProfileScreen({ onBack }) {
   const { logout } = useAuth();
+  const { preference: localePreference, setLocalePreference } = useLocale();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,7 +50,7 @@ export default function ProfileScreen({ onBack }) {
     } catch (err) {
       console.error('Error loading profile:', err);
       setError(err.message || 'Failed to load profile');
-      Alert.alert('Error', err.message || 'Failed to load profile');
+      Alert.alert(t('common.error'), err.message || t('profile.failedToLoad'));
     } finally {
       setIsLoading(false);
     }
@@ -56,12 +59,12 @@ export default function ProfileScreen({ onBack }) {
   const handleSave = async () => {
     const ageNum = age.trim() === '' ? null : parseInt(age, 10);
     if (age.trim() !== '' && (isNaN(ageNum) || ageNum < 0 || ageNum > 150)) {
-      Alert.alert('Invalid Input', 'Please enter a valid age (0–150).');
+      Alert.alert(t('common.invalidInput'), t('profile.validAge'));
       return;
     }
     const heightNum = heightCm.trim() === '' ? null : parseFloat(heightCm);
     if (heightCm.trim() !== '' && (isNaN(heightNum) || heightNum <= 0 || heightNum > 250)) {
-      Alert.alert('Invalid Input', 'Please enter a valid height in cm (e.g. 170).');
+      Alert.alert(t('common.invalidInput'), t('profile.validHeight'));
       return;
     }
 
@@ -82,13 +85,13 @@ export default function ProfileScreen({ onBack }) {
         gender: gender.trim() || null,
         height_cm: heightNum,
       }));
-      Alert.alert('Success', 'Profile updated successfully!');
+      Alert.alert(t('common.success'), t('profile.profileUpdated'));
     } catch (err) {
       console.error('Error saving profile:', err);
       const message = (err && typeof err.message === 'string')
         ? err.message
-        : (err && err.detail != null ? JSON.stringify(err.detail) : 'Failed to update profile');
-      Alert.alert('Error', message);
+        : (err && err.detail != null ? JSON.stringify(err.detail) : t('profile.failedToUpdate'));
+      Alert.alert(t('common.error'), message);
     } finally {
       setIsSaving(false);
     }
@@ -113,7 +116,7 @@ export default function ProfileScreen({ onBack }) {
             <Ionicons name="arrow-back" size={24} color={dark.text} />
           </TouchableOpacity>
         )}
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{t('profile.title')}</Text>
         <TouchableOpacity
           style={styles.rightButton}
           onPress={logout}
@@ -126,29 +129,29 @@ export default function ProfileScreen({ onBack }) {
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={dark.primary} />
-            <Text style={styles.loadingText}>Loading profile...</Text>
+            <Text style={styles.loadingText}>{t('profile.loadingProfile')}</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
             <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity style={styles.retryButton} onPress={loadProfile}>
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.form}>
             <View style={styles.field}>
-              <Text style={styles.label}>Username</Text>
+              <Text style={styles.label}>{t('profile.username')}</Text>
               <Text style={styles.readOnlyValue}>{profile?.username ?? '—'}</Text>
-              <Text style={styles.hint}>Username cannot be changed</Text>
+              <Text style={styles.hint}>{t('profile.usernameHint')}</Text>
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>First name</Text>
+              <Text style={styles.label}>{t('profile.firstName')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter first name"
+                placeholder={t('profile.enterFirstName')}
                 placeholderTextColor={dark.mutedText}
                 value={firstName}
                 onChangeText={setFirstName}
@@ -158,10 +161,10 @@ export default function ProfileScreen({ onBack }) {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Last name</Text>
+              <Text style={styles.label}>{t('profile.lastName')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter last name"
+                placeholder={t('profile.enterLastName')}
                 placeholderTextColor={dark.mutedText}
                 value={lastName}
                 onChangeText={setLastName}
@@ -171,10 +174,10 @@ export default function ProfileScreen({ onBack }) {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Age</Text>
+              <Text style={styles.label}>{t('profile.age')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter age"
+                placeholder={t('profile.enterAge')}
                 placeholderTextColor={dark.mutedText}
                 value={age}
                 onChangeText={setAge}
@@ -185,7 +188,7 @@ export default function ProfileScreen({ onBack }) {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Gender</Text>
+              <Text style={styles.label}>{t('profile.gender')}</Text>
               <View style={styles.genderRow}>
                 {['Male', 'Female'].map((value) => (
                   <TouchableOpacity
@@ -203,7 +206,7 @@ export default function ProfileScreen({ onBack }) {
                         gender === value && styles.genderChipTextSelected,
                       ]}
                     >
-                      {value}
+                      {value === 'Male' ? t('profile.male') : t('profile.female')}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -211,17 +214,46 @@ export default function ProfileScreen({ onBack }) {
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.label}>Height (cm)</Text>
+              <Text style={styles.label}>{t('profile.heightCm')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g. 170"
+                placeholder={t('profile.heightPlaceholder')}
                 placeholderTextColor={dark.mutedText}
                 value={heightCm}
                 onChangeText={setHeightCm}
                 keyboardType="decimal-pad"
                 editable={!isSaving}
               />
-              <Text style={styles.hint}>Used for muscle index calculation</Text>
+              <Text style={styles.hint}>{t('profile.heightHint')}</Text>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>{t('profile.language')}</Text>
+              <View style={styles.genderRow}>
+                {[
+                  { value: 'device', labelKey: 'profile.languageDevice' },
+                  { value: 'en', labelKey: 'profile.languageEnglish' },
+                  { value: 'es', labelKey: 'profile.languageSpanish' },
+                ].map(({ value, labelKey }) => (
+                  <TouchableOpacity
+                    key={value}
+                    style={[
+                      styles.genderChip,
+                      localePreference === value && styles.genderChipSelected,
+                    ]}
+                    onPress={() => setLocalePreference(value)}
+                  >
+                    <Text
+                      style={[
+                        styles.genderChipText,
+                        localePreference === value && styles.genderChipTextSelected,
+                      ]}
+                    >
+                      {t(labelKey)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <TouchableOpacity
@@ -234,7 +266,7 @@ export default function ProfileScreen({ onBack }) {
               ) : (
                 <>
                   <Ionicons name="checkmark-circle-outline" size={22} color={dark.background} />
-                  <Text style={styles.saveButtonText}>Save changes</Text>
+                  <Text style={styles.saveButtonText}>{t('profile.saveChanges')}</Text>
                 </>
               )}
             </TouchableOpacity>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '../i18n';
 
 const darkTheme = {
   card: '#0B1120',
@@ -31,7 +32,7 @@ export default function MuscleIndexEntryForm({ onAdd, variant }) {
   const handleSubmit = async () => {
     const indexValue = parseFloat(index);
     if (!index || isNaN(indexValue) || indexValue <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid muscle index.');
+      Alert.alert(t('common.invalidInput'), t('muscleIndex.validIndex'));
       return;
     }
     try {
@@ -49,7 +50,7 @@ export default function MuscleIndexEntryForm({ onAdd, variant }) {
         onPress={() => setShowModal(true)}
       >
         <Ionicons name="add-circle" size={24} color={isDark ? darkTheme.card : '#fff'} />
-        <Text style={[styles.addButtonText, isDark && styles.addButtonTextDark]}>Add Muscle Index</Text>
+        <Text style={[styles.addButtonText, isDark && styles.addButtonTextDark]}>{t('muscleIndex.addRecord')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -61,23 +62,23 @@ export default function MuscleIndexEntryForm({ onAdd, variant }) {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>Add Muscle Index</Text>
+              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>{t('muscleIndex.addRecord')}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Ionicons name="close" size={24} color={isDark ? darkTheme.text : '#333'} />
               </TouchableOpacity>
             </View>
             <View style={styles.form}>
-              <Text style={[styles.label, isDark && styles.labelDark]}>Index</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('muscleIndex.index')}</Text>
               <TextInput
                 style={[styles.input, isDark && styles.inputDark]}
-                placeholder="e.g. 15"
+                placeholder={t('muscleIndex.indexPlaceholder')}
                 placeholderTextColor={isDark ? darkTheme.mutedText : undefined}
                 keyboardType="decimal-pad"
                 value={index}
                 onChangeText={setIndex}
                 autoFocus
               />
-              <Text style={[styles.label, isDark && styles.labelDark]}>Date</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('common.date')}</Text>
               {Platform.OS === 'web' ? (
                 <TextInput
                   style={[styles.input, isDark && styles.inputDark]}
@@ -116,13 +117,13 @@ export default function MuscleIndexEntryForm({ onAdd, variant }) {
                   style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setShowModal(false)}
                 >
-                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSubmit}
                 >
-                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Add</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>{t('common.add')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '../i18n';
 
 const darkTheme = {
   card: '#0B1120',
@@ -39,7 +40,7 @@ export default function MuscleIndexList({ records, onEdit, onDelete, variant }) 
   const handleSaveEdit = async () => {
     const indexValue = parseFloat(editIndex);
     if (!editIndex || isNaN(indexValue) || indexValue <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid muscle index.');
+      Alert.alert(t('common.invalidInput'), t('muscleIndex.validIndex'));
       return;
     }
     try {
@@ -53,11 +54,11 @@ export default function MuscleIndexList({ records, onEdit, onDelete, variant }) 
 
   const handleDelete = (id) => {
     Alert.alert(
-      'Delete Record',
-      'Are you sure you want to delete this record?',
+      t('muscleIndex.deleteRecord'),
+      t('muscleIndex.deleteConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => onDelete(id) },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(id) },
       ]
     );
   };
@@ -87,12 +88,12 @@ export default function MuscleIndexList({ records, onEdit, onDelete, variant }) 
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, isDark && styles.titleDark]}>History</Text>
+      <Text style={[styles.title, isDark && styles.titleDark]}>{t('muscleIndex.history')}</Text>
       {!records || records.length === 0 ? (
         <View style={[styles.emptyState, isDark && styles.emptyStateDark]}>
           <Ionicons name="body-outline" size={64} color={isDark ? darkTheme.mutedText : '#ccc'} />
-          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>No muscle index records yet</Text>
-          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>Add or calculate to get started</Text>
+          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>{t('muscleIndex.noRecords')}</Text>
+          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>{t('muscleIndex.addOrCalculate')}</Text>
         </View>
       ) : (
         <FlatList
@@ -112,23 +113,23 @@ export default function MuscleIndexList({ records, onEdit, onDelete, variant }) 
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>Edit Muscle Index</Text>
+              <Text style={[styles.modalTitle, isDark && styles.modalTitleDark]}>{t('muscleIndex.editRecord')}</Text>
               <TouchableOpacity onPress={() => setEditing(null)}>
                 <Ionicons name="close" size={24} color={isDark ? darkTheme.text : '#333'} />
               </TouchableOpacity>
             </View>
             <View style={styles.form}>
-              <Text style={[styles.label, isDark && styles.labelDark]}>Index</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('muscleIndex.index')}</Text>
               <TextInput
                 style={[styles.input, isDark && styles.inputDark]}
-                placeholder="e.g. 15"
+                placeholder={t('muscleIndex.indexPlaceholder')}
                 placeholderTextColor={isDark ? darkTheme.mutedText : undefined}
                 keyboardType="decimal-pad"
                 value={editIndex}
                 onChangeText={setEditIndex}
                 autoFocus
               />
-              <Text style={[styles.label, isDark && styles.labelDark]}>Date</Text>
+              <Text style={[styles.label, isDark && styles.labelDark]}>{t('common.date')}</Text>
               {Platform.OS === 'web' ? (
                 <TextInput
                   style={[styles.input, isDark && styles.inputDark]}
@@ -167,13 +168,13 @@ export default function MuscleIndexList({ records, onEdit, onDelete, variant }) 
                   style={[styles.button, styles.cancelButton, isDark && styles.cancelButtonDark]}
                   onPress={() => setEditing(null)}
                 >
-                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, isDark && styles.cancelButtonTextDark]}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.submitButton, isDark && styles.submitButtonDark]}
                   onPress={handleSaveEdit}
                 >
-                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>Save</Text>
+                  <Text style={[styles.submitButtonText, isDark && styles.submitButtonTextDark]}>{t('common.save')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

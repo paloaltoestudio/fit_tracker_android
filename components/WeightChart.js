@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { t } from '../i18n';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -21,10 +22,10 @@ export default function WeightChart({ weightRecords, variant }) {
   if (weightRecords.length === 0) {
     return (
       <View style={[styles.container, isDark && styles.containerDark]}>
-        <Text style={[styles.title, isDark && styles.titleDark]}>Weight Chart</Text>
+        <Text style={[styles.title, isDark && styles.titleDark]}>{t('weight.chartTitle')}</Text>
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>No data to display</Text>
-          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>Add weight records to see the chart</Text>
+          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>{t('common.noData')}</Text>
+          <Text style={[styles.emptySubtext, isDark && styles.emptySubtextDark]}>{t('weight.chartEmpty')}</Text>
         </View>
       </View>
     );
@@ -103,7 +104,7 @@ export default function WeightChart({ weightRecords, variant }) {
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
-      <Text style={[styles.title, isDark && styles.titleDark]}>Weight Chart</Text>
+      <Text style={[styles.title, isDark && styles.titleDark]}>{t('weight.chartTitle')}</Text>
       
       <View style={styles.chartContainer}>
         <LineChart
@@ -120,33 +121,33 @@ export default function WeightChart({ weightRecords, variant }) {
 
       <View style={[styles.statsContainer, isDark && styles.statsContainerDark]}>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Current</Text>
-          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{latestWeight} kg</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.current')}</Text>
+          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{latestWeight} {t('home.kg')}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Average</Text>
-          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{avgWeight} kg</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.average')}</Text>
+          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{avgWeight} {t('home.kg')}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Min</Text>
-          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{minWeight} kg</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.min')}</Text>
+          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{minWeight} {t('home.kg')}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>Max</Text>
-          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{maxWeight} kg</Text>
+          <Text style={[styles.statLabel, isDark && styles.statLabelDark]}>{t('common.max')}</Text>
+          <Text style={[styles.statValue, isDark && styles.statValueDark]}>{maxWeight} {t('home.kg')}</Text>
         </View>
       </View>
 
       {weightRecords.length > 1 && (
         <View style={[styles.differenceContainer, isDark && styles.differenceContainerDark]}>
-          <Text style={[styles.differenceLabel, isDark && styles.differenceLabelDark]}>Total Change:</Text>
+          <Text style={[styles.differenceLabel, isDark && styles.differenceLabelDark]}>{t('common.totalChange')}:</Text>
           <Text
             style={[
               styles.differenceValue,
               parseFloat(difference) >= 0 ? (isDark ? styles.positiveDark : styles.positive) : (isDark ? styles.negativeDark : styles.negative),
             ]}
           >
-            {difference > 0 ? '+' : ''}{difference} kg
+            {difference > 0 ? '+' : ''}{difference} {t('home.kg')}
           </Text>
         </View>
       )}
