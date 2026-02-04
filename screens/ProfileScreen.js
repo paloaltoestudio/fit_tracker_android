@@ -25,6 +25,8 @@ export default function ProfileScreen({ onBack }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [heightCm, setHeightCm] = useState('');
 
   useEffect(() => {
     loadProfile();
@@ -39,6 +41,9 @@ export default function ProfileScreen({ onBack }) {
       setFirstName(data.first_name ?? '');
       setLastName(data.last_name ?? '');
       setAge(data.age != null ? String(data.age) : '');
+      const g = data.gender ? String(data.gender).trim() : '';
+      setGender(g === 'male' ? 'Male' : g === 'female' ? 'Female' : g);
+      setHeightCm(data.height_cm != null ? String(data.height_cm) : '');
     } catch (err) {
       console.error('Error loading profile:', err);
       setError(err.message || 'Failed to load profile');
@@ -54,6 +59,11 @@ export default function ProfileScreen({ onBack }) {
       Alert.alert('Invalid Input', 'Please enter a valid age (0–150).');
       return;
     }
+    const heightNum = heightCm.trim() === '' ? null : parseFloat(heightCm);
+    if (heightCm.trim() !== '' && (isNaN(heightNum) || heightNum <= 0 || heightNum > 250)) {
+      Alert.alert('Invalid Input', 'Please enter a valid height in cm (e.g. 170).');
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -61,17 +71,24 @@ export default function ProfileScreen({ onBack }) {
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         age: ageNum,
+        gender: gender.trim() || null,
+        height_cm: heightNum,
       });
       setProfile((prev) => ({
         ...prev,
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         age: ageNum,
+        gender: gender.trim() || null,
+        height_cm: heightNum,
       }));
       Alert.alert('Success', 'Profile updated successfully!');
     } catch (err) {
       console.error('Error saving profile:', err);
-      Alert.alert('Error', err.message || 'Failed to update profile');
+      const message = (err && typeof err.message === 'string')
+        ? err.message
+        : (err && err.detail != null ? JSON.stringify(err.detail) : 'Failed to update profile');
+      Alert.alert('Error', message);
     } finally {
       setIsSaving(false);
     }
@@ -165,6 +182,46 @@ export default function ProfileScreen({ onBack }) {
                 maxLength={3}
                 editable={!isSaving}
               />
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Gender</Text>
+              <View style={styles.genderRow}>
+                {['Male', 'Female'].map((value) => (
+                  <TouchableOpacity
+                    key={value}
+                    style={[
+                      styles.genderChip,
+                      gender === value && styles.genderChipSelected,
+                    ]}
+                    onPress={() => setGender(gender === value ? '' : value)}
+                    disabled={isSaving}
+                  >
+                    <Text
+                      style={[
+                        styles.genderChipText,
+                        gender === value && styles.genderChipTextSelected,
+                      ]}
+                    >
+                      {value}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Height (cm)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. 170"
+                placeholderTextColor={dark.mutedText}
+                value={heightCm}
+                onChangeText={setHeightCm}
+                keyboardType="decimal-pad"
+                editable={!isSaving}
+              />
+              <Text style={styles.hint}>Used for muscle index calculation</Text>
             </View>
 
             <TouchableOpacity
@@ -298,6 +355,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#7D8AA3',
     marginTop: 4,
+  },
+  genderRow: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  genderChip: {
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1B2438',
+    backgroundColor: '#111A2F',
+  },
+  genderChipSelected: {
+    borderColor: '#00FFD1',
+    backgroundColor: 'rgba(0, 255, 209, 0.12)',
+  },
+  genderChipText: {
+    fontSize: 16,
+    color: '#7D8AA3',
+    fontWeight: '500',
+  },
+  genderChipTextSelected: {
+    color: '#00FFD1',
+    fontWeight: '600',
   },
   saveButton: {
     flexDirection: 'row',

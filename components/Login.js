@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
@@ -80,12 +81,23 @@ export default function Login() {
               placeholderTextColor={dark.mutedText}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isLoading}
               onSubmitEditing={handleLogin}
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={22}
+                color={dark.mutedText}
+              />
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
@@ -156,6 +168,10 @@ const styles = StyleSheet.create({
   },
   inputIcon: {
     marginRight: 12,
+  },
+  eyeButton: {
+    padding: 8,
+    justifyContent: 'center',
   },
   input: {
     flex: 1,

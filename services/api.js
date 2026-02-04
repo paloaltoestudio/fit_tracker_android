@@ -1,6 +1,32 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
 
+function formatErrorDetail(detail) {
+  if (detail == null) return null;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    const parts = detail.map((item) => {
+      if (item == null) return null;
+      const part = item.msg ?? item.message ?? item.detail ?? item;
+      return typeof part === 'string' ? part : (formatErrorDetail(part) || JSON.stringify(part));
+    }).filter(Boolean);
+    return parts.length ? parts.join('; ') : null;
+  }
+  if (typeof detail === 'object') {
+    const parts = [];
+    for (const [key, val] of Object.entries(detail)) {
+      if (val != null && typeof val === 'object' && !Array.isArray(val)) {
+        parts.push(`${key}: ${formatErrorDetail(val) || JSON.stringify(val)}`);
+      } else {
+        const text = Array.isArray(val) ? val.join(', ') : String(val);
+        parts.push(`${key}: ${text}`);
+      }
+    }
+    return parts.length ? parts.join('; ') : null;
+  }
+  return String(detail);
+}
+
 class ApiService {
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -41,7 +67,9 @@ class ApiService {
           const text = await response.text();
           errorData = { message: text || `Error: ${response.status}` };
         }
-        throw new Error(errorData.message || errorData.detail || `Error: ${response.status}`);
+        const raw = errorData.message ?? formatErrorDetail(errorData.detail) ?? errorData.detail;
+        const msg = typeof raw === 'string' ? raw : (raw != null ? JSON.stringify(raw) : `Error: ${response.status}`);
+        throw new Error(msg || `Error: ${response.status}`);
       }
 
       // Handle empty responses (like 204 No Content for DELETE)
@@ -161,17 +189,65 @@ class ApiService {
     });
   }
 
+  // Metrics endpoint (muscle_index, etc.). Weight stays on /weights for now.
+  async getMetrics(metricType, { dateFrom, dateTo } = {}) {
+    let endpoint = `/metrics?metric_type=${encodeURIComponent(metricType)}`;
+    if (dateFrom) endpoint += `&date_from=${encodeURIComponent(String(dateFrom).split('T')[0])}`;
+    if (dateTo) endpoint += `&date_to=${encodeURIComponent(String(dateTo).split('T')[0])}`;
+    return await this.request(endpoint);
+  }
+
+  async createMetric(metricType, date, value) {
+    const formattedDate = typeof date === 'string'
+      ? date.split('T')[0]
+      : new Date(date).toISOString().split('T')[0];
+    return await this.request('/metrics', {
+      method: 'POST',
+      body: JSON.stringify({
+        metric_type: metricType,
+        date: formattedDate,
+        value,
+      }),
+    });
+  }
+
+  async updateMetric(id, value, date = null) {
+    const body = { value };
+    if (date) {
+      const formattedDate = typeof date === 'string'
+        ? date.split('T')[0]
+        : new Date(date).toISOString().split('T')[0];
+      body.date = formattedDate;
+    }
+    return await this.request(`/metrics/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteMetric(id) {
+    return await this.request(`/metrics/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Profile endpoints
   async getProfile() {
     return await this.request('/profile');
   }
 
   async updateProfile(data) {
-    const body = {
-      first_name: data.first_name ?? null,
-      last_name: data.last_name ?? null,
-      age: data.age == null || data.age === '' ? null : Number(data.age),
-    };
+    const body = {};
+    const firstName = data.first_name != null ? String(data.first_name).trim() : '';
+    if (firstName !== '') body.first_name = firstName;
+    const lastName = data.last_name != null ? String(data.last_name).trim() : '';
+    if (lastName !== '') body.last_name = lastName;
+    const age = data.age == null || data.age === '' ? null : Number(data.age);
+    if (age != null && !Number.isNaN(age)) body.age = age;
+    const gender = data.gender != null ? String(data.gender).trim() : '';
+    if (gender !== '') body.gender = gender;
+    const heightCm = data.height_cm == null || data.height_cm === '' ? null : Number(data.height_cm);
+    if (heightCm != null && !Number.isNaN(heightCm)) body.height_cm = heightCm;
     return await this.request('/profile', {
       method: 'PUT',
       body: JSON.stringify(body),

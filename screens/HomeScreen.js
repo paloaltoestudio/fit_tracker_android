@@ -16,18 +16,30 @@ import WeightChart from '../components/WeightChart';
 
 export default function HomeScreen({ onNavigate }) {
   const [weights, setWeights] = useState([]);
+  const [muscleIndexRecords, setMuscleIndexRecords] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await api.getWeights();
         const arr = Array.isArray(data) ? data : [];
-        // Sort ASC by date for consistency (oldest -> newest)
         arr.sort((a, b) => new Date(a.date) - new Date(b.date));
         setWeights(arr);
       } catch (e) {
-        // Home should still render even if weights fail
         console.error('Home weights load error:', e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.getMetrics('muscle_index');
+        const arr = Array.isArray(data) ? data : [];
+        arr.sort((a, b) => new Date(a.date) - new Date(b.date));
+        setMuscleIndexRecords(arr);
+      } catch (e) {
+        console.error('Home muscle index load error:', e);
       }
     })();
   }, []);
@@ -44,6 +56,21 @@ export default function HomeScreen({ onNavigate }) {
     if (Number.isNaN(last) || Number.isNaN(prev)) return null;
     return last - prev;
   }, [weights]);
+
+  const currentMuscleIndex = useMemo(() => {
+    if (!muscleIndexRecords.length) return null;
+    const last = muscleIndexRecords[muscleIndexRecords.length - 1];
+    const idx = last?.value?.index;
+    return typeof idx === 'number' ? idx : null;
+  }, [muscleIndexRecords]);
+
+  const muscleIndexDelta = useMemo(() => {
+    if (muscleIndexRecords.length < 2) return null;
+    const last = muscleIndexRecords[muscleIndexRecords.length - 1]?.value?.index;
+    const prev = muscleIndexRecords[muscleIndexRecords.length - 2]?.value?.index;
+    if (typeof last !== 'number' || typeof prev !== 'number') return null;
+    return last - prev;
+  }, [muscleIndexRecords]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,23 +104,34 @@ export default function HomeScreen({ onNavigate }) {
             </View>
           </View>
 
-          {/* Muscle index card (placeholder) */}
-          <View style={[styles.card, styles.cardHalf]}>
+          {/* Muscle index card (from DB) */}
+          <TouchableOpacity
+            style={[styles.card, styles.cardHalf]}
+            activeOpacity={0.8}
+            onPress={() => onNavigate('body')}
+          >
             <View style={styles.cardTopRow}>
               <View style={[styles.iconBadge, { backgroundColor: 'rgba(34,197,94,0.12)' }]}>
                 <Ionicons name="pulse-outline" size={22} color={colors.success} />
               </View>
-              <View style={[styles.pill, styles.pillUp]}>
-                <Ionicons name="arrow-up" size={14} color={colors.success} />
-                <Text style={[styles.pillText, { color: colors.success }]}>2%</Text>
-              </View>
+              {muscleIndexDelta != null && (
+                <View style={[styles.pill, muscleIndexDelta >= 0 ? styles.pillUp : styles.pillDown]}>
+                  <Ionicons
+                    name={muscleIndexDelta >= 0 ? 'arrow-up' : 'arrow-down'}
+                    size={14}
+                    color={muscleIndexDelta >= 0 ? colors.success : colors.destructive}
+                  />
+                  <Text style={[styles.pillText, { color: muscleIndexDelta >= 0 ? colors.success : colors.destructive }]}>
+                    {muscleIndexDelta >= 0 ? '+' : ''}{muscleIndexDelta.toFixed(1)}
+                  </Text>
+                </View>
+              )}
             </View>
             <Text style={styles.cardLabel}>Muscle Index</Text>
             <View style={styles.valueRow}>
-              <Text style={styles.cardValue}>42</Text>
-              <Text style={styles.cardUnit}>%</Text>
+              <Text style={styles.cardValue}>{currentMuscleIndex == null ? '—' : Number(currentMuscleIndex).toFixed(1)}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Streak card */}
