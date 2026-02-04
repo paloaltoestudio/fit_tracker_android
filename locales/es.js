@@ -34,8 +34,8 @@ export default {
     profile: 'Perfil',
   },
   home: {
-    welcomeBack: 'Bienvenido de nuevo',
-    heroTitle: '¡A por ello!',
+    welcomeBack: 'Hola, %{name}!',
+    heroTitle: '¡Vamos a darle!',
     currentWeight: 'Peso actual',
     muscleIndex: 'Índice muscular',
     kg: 'kg',

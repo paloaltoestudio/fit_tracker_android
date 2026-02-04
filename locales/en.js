@@ -34,7 +34,7 @@ export default {
     profile: 'Profile',
   },
   home: {
-    welcomeBack: 'Welcome back',
+    welcomeBack: 'Hi, %{name}!',
     heroTitle: "Let's crush it today!",
     currentWeight: 'Current Weight',
     muscleIndex: 'Muscle Index',

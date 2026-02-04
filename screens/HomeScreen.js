@@ -18,6 +18,18 @@ import { t } from '../i18n';
 export default function HomeScreen({ onNavigate }) {
   const [weights, setWeights] = useState([]);
   const [muscleIndexRecords, setMuscleIndexRecords] = useState([]);
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.getProfile();
+        setProfile(data);
+      } catch (e) {
+        console.error('Home profile load error:', e);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -77,7 +89,7 @@ export default function HomeScreen({ onNavigate }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.kicker}>{t('home.welcomeBack')}</Text>
+        <Text style={styles.kicker}>{t('home.welcomeBack', { name: profile?.first_name || profile?.username || '' })}</Text>
         <Text style={styles.heroTitle}>{t('home.heroTitle')}</Text>
 
         <View style={styles.grid2}>
